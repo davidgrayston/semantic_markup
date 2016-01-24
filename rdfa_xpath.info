@@ -1,0 +1,3 @@
+core = "7.x"
+description = "Adds structured data to pages using xpath"
+name = "RDFa XPath"

@@ -1,0 +1,37 @@
+<?php
+/**
+ * Implements hook_process_html().
+ */
+function rdfa_xpath_process_html(&$variables) {
+  $rdfa_mappings = module_invoke_all('rdfa_xpath_mappings');
+  foreach ($rdfa_mappings as $rdfa_mapping) {
+    $node = menu_get_object();
+    if ($rdfa_mapping['type'] == 'node' && !empty($node->type) && $node->type == $rdfa_mapping['bundle']) {
+      $context = array('node' => $node);
+      $variables['page'] = _rdfa_xpath_process_rdf_mappings($variables['page'], $rdfa_mapping['mappings'], $context);
+    }
+  }
+}
+
+/**
+ * Process RDFa mappings and inject into provided HTML.
+ */
+function _rdfa_xpath_process_rdf_mappings($html, $mappings, $context) {
+  $dom = filter_dom_load($html);
+  $xpath = new DOMXPath($dom);
+
+  foreach ($mappings as $mapping) {
+    if ($elements = $xpath->query($mapping['xpath'])) {
+      foreach ($elements as $element) {
+        foreach ($mapping['attributes'] as $key => $value) {
+          if ($key == 'content') {
+            $value = token_replace($value, array('node' => $node));
+          }
+          $element->setAttribute($key, $value);
+        }
+      }
+    }
+  }
+
+  return $dom->saveHTML();
+}
