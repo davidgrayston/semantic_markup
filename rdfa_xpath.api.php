@@ -72,11 +72,20 @@ function hook_rdfa_xpath_mappings() {
           'xpath' => $node_base . "//*[contains(concat(' ', @class, ' '), ' field-name-field-published-date ')]//*[contains(concat(' ', @class, ' '), ' date-display-single ')]",
           'attributes' => array(
             'property' => 'schema:datePublished',
-            'content' => '[node:field-published-date]',
+            'content' => array(
+              'value' => '[node:field-published-date:raw]',
+              'callback' => 'date_iso8601',
+            ),
           ),
         ),
         array(
-          'xpath' => $node_base . "//*[contains(concat(' ', @class, ' '), ' primary-image ')]",
+          'xpath' => $node_base . "//*[contains(concat(' ', @class, ' '), ' field-name-body ')]",
+          'attributes' => array(
+            'property' => 'schema:articleBody',
+          ),
+        ),
+        array(
+          'xpath' => $node_base . "//*[contains(concat(' ', @class, ' '), ' primary-image ')]/img",
           'attributes' => array(
             'property' => 'schema:image',
           ),

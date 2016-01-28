@@ -37,7 +37,27 @@ function _rdfa_xpath_process_rdf_mappings($dom_xpath, $mappings, $context = arra
   foreach ($mappings as $mapping) {
     if ($elements = $dom_xpath->query($mapping['xpath'])) {
       foreach ($elements as $element) {
-        foreach ($mapping['attributes'] as $key => $value) {
+        foreach ($mapping['attributes'] as $key => $config) {
+          $value = '';
+
+          if (!empty($config['value'])) {
+            // Use 'value' property if the configuration is an array.
+            $value = $config['value'];
+          }
+          elseif (is_scalar($config)) {
+            // If the config is a string, use as value.
+            $value = $config;
+          }
+
+          // Replace any tokens.
+          $value = token_replace($value, $context);
+
+          // Run through callback if set.
+          if (!empty($config['callback'])) {
+            $value = call_user_func($config['callback'], $value);
+          }
+
+          // Add attribute to dom element.
           $element->setAttribute($key, token_replace($value, $context));
         }
       }
