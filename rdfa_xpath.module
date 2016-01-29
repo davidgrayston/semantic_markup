@@ -32,11 +32,27 @@ function rdfa_xpath_process_html(&$variables) {
 
 /**
  * Process RDFa mappings.
+ *
+ * @param DOMXPath $dom_xpath
+ *   DOMXPath to be processed.
+ * @param array $mappings
+ *   rdfa xpath mappings to be processed.
+ * @param array $context
+ *   context to be used for token replacement.
  */
 function _rdfa_xpath_process_rdf_mappings($dom_xpath, $mappings, $context = array()) {
   foreach ($mappings as $mapping) {
     if ($elements = $dom_xpath->query($mapping['xpath'])) {
       foreach ($elements as $element) {
+        if (!empty($mapping['element'])) {
+          // Inject new empty element if element name is specified.
+          $rdfa_element = _rdfa_xpath_inject_element($element, $mapping);
+        }
+        else {
+          // Add attributes to xpath element.
+          $rdfa_element = $element;
+        }
+
         foreach ($mapping['attributes'] as $key => $config) {
           $value = '';
 
@@ -58,9 +74,40 @@ function _rdfa_xpath_process_rdf_mappings($dom_xpath, $mappings, $context = arra
           }
 
           // Add attribute to dom element.
-          $element->setAttribute($key, token_replace($value, $context));
+          $rdfa_element->setAttribute($key, token_replace($value, $context));
         }
       }
     }
   }
+}
+
+/**
+ * Create and inject a new dom element.
+ *
+ * @param $ref_element
+ *   Element to inject before or after.
+ * @param $mapping
+ *   rdfa xpath mapping.
+ * @return $element
+ *   Newly created element.
+ */
+function _rdfa_xpath_inject_element($ref_element, $mapping) {
+  $element = $ref_element->ownerDocument->createElement($mapping['element']);
+
+  // Inject new element before or after xpath element based on position config.
+  if (!empty($mapping['position']) && $mapping['position'] == 'after') {
+    // Position after.
+    if($ref_element->nextSibling) {
+      $ref_element->parentNode->insertBefore($element, $ref_element->nextSibling);
+    }
+    else {
+      $ref_element->parentNode->appendChild($element);
+    }
+  }
+  else{
+    // Position before.
+    $ref_element->parentNode->insertBefore($element, $ref_element);
+  }
+
+  return $element;
 }

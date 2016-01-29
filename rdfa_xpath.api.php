@@ -56,6 +56,15 @@ function hook_rdfa_xpath_mappings() {
           ),
         ),
         array(
+          'xpath' => "//h1",
+          'element' => 'span',
+          'position' => 'after',
+          'attributes' => array(
+            'property' => 'schema:alternativeHeadline',
+            'content' => '[node:title]',
+          ),
+        ),
+        array(
           'xpath' => $node_base . "//*[contains(concat(' ', @class, ' '), ' field-name-field-author ')]",
           'attributes' => array(
             'typeof' => 'schema:Person',
