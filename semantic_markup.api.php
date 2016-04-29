@@ -1,10 +1,10 @@
 <?php
 /**
- * hook_rdfa_xpath_mappings().
+ * hook_semantic_markup_mappings().
  *
  * Provides RDFa xpath mappings.
  */
-function hook_rdfa_xpath_mappings() {
+function hook_semantic_markup_mappings() {
   $node_base = "//*[contains(concat(' ', @class, ' '), ' node-full ')]";
   $rdfa_mappings = array(
     // Global example using the vocab attribute.

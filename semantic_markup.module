@@ -2,8 +2,8 @@
 /**
  * Implements hook_process_html().
  */
-function rdfa_xpath_process_html(&$variables) {
-  $rdfa_mappings = module_invoke_all('rdfa_xpath_mappings');
+function semantic_markup_process_html(&$variables) {
+  $rdfa_mappings = module_invoke_all('semantic_markup_mappings');
   if (!empty($rdfa_mappings)) {
     // Create DOM XPath object to process.
     $dom = filter_dom_load($variables['page']);
@@ -13,13 +13,13 @@ function rdfa_xpath_process_html(&$variables) {
       switch ($rdfa_mapping['type']) {
         case 'global':
           // Process global mappings.
-          _rdfa_xpath_process_rdf_mappings($dom_xpath, $rdfa_mapping['mappings']);
+          _semantic_markup_process_rdf_mappings($dom_xpath, $rdfa_mapping['mappings']);
           break;
         case 'node':
           $node = menu_get_object();
           if (isset($node->type) && $node->type == $rdfa_mapping['bundle']) {
             // Pass node context for token replacement.
-            _rdfa_xpath_process_rdf_mappings($dom_xpath, $rdfa_mapping['mappings'], array('node' => $node));
+            _semantic_markup_process_rdf_mappings($dom_xpath, $rdfa_mapping['mappings'], array('node' => $node));
           }
           break;
       }
@@ -40,13 +40,13 @@ function rdfa_xpath_process_html(&$variables) {
  * @param array $context
  *   context to be used for token replacement.
  */
-function _rdfa_xpath_process_rdf_mappings($dom_xpath, $mappings, $context = array()) {
+function _semantic_markup_process_rdf_mappings($dom_xpath, $mappings, $context = array()) {
   foreach ($mappings as $mapping) {
     if ($elements = $dom_xpath->query($mapping['xpath'])) {
       foreach ($elements as $element) {
         if (!empty($mapping['element'])) {
           // Inject new empty element if element name is specified.
-          $rdfa_element = _rdfa_xpath_inject_element($element, $mapping);
+          $rdfa_element = _semantic_markup_inject_element($element, $mapping);
         }
         else {
           // Add attributes to xpath element.
@@ -91,7 +91,7 @@ function _rdfa_xpath_process_rdf_mappings($dom_xpath, $mappings, $context = arra
  * @return $element
  *   Newly created element.
  */
-function _rdfa_xpath_inject_element($ref_element, $mapping) {
+function _semantic_markup_inject_element($ref_element, $mapping) {
   $element = $ref_element->ownerDocument->createElement($mapping['element']);
 
   // Inject new element before or after xpath element based on position config.
